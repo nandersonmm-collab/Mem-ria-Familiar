@@ -1,0 +1,557 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Memória dos Filhotes Resgatadores</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@600;800&display=swap">
+<style>
+  [hidden] { display: none !important; }
+  :root {
+    color-scheme: light;
+    --sky: #2B7DE9;
+    --sky-deep: #174F9E;
+    --sun: #FFC93C;
+    --sun-deep: #C9951A;
+    --siren: #E8412C;
+    --grass: #3DB36B;
+    --ink: #13294B;
+    --muted: #5A6B88;
+    --panel: #FFFFFF;
+    --panel-soft: #EEF5FF;
+    --cols: 8;
+  }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--sky);
+    background-image:
+      radial-gradient(circle at 12% 18%, rgba(255,255,255,.18) 0 60px, transparent 61px),
+      radial-gradient(circle at 88% 10%, rgba(255,255,255,.14) 0 80px, transparent 81px),
+      radial-gradient(circle at 70% 95%, rgba(255,255,255,.10) 0 120px, transparent 121px);
+    background-attachment: fixed;
+    color: var(--ink);
+    font-family: "Nunito", "Trebuchet MS", system-ui, sans-serif;
+    padding: 16px;
+    padding-block: 16px 28px;
+    box-sizing: border-box;
+  }
+  .wrap { max-width: 1040px; margin: 0 auto; display: grid; gap: 14px; }
+  header { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; }
+  h1 {
+    font-family: "Baloo 2", "Comic Sans MS", system-ui, sans-serif;
+    font-weight: 800; color: #fff; margin: 0;
+    font-size: clamp(1.6rem, 4.5vw, 2.6rem); line-height: 1;
+    text-shadow: 0 3px 0 var(--sky-deep); text-wrap: balance;
+  }
+  h1 span { color: var(--sun); }
+  .sub { color: #DCEBFF; margin: 4px 0 0; font-size: 0.95rem; }
+  .hud { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .pill {
+    background: #fff; color: var(--ink); border-radius: 999px;
+    padding: 6px 14px; font-weight: 800; font-size: 0.95rem;
+    font-variant-numeric: tabular-nums; box-shadow: 0 3px 0 var(--sky-deep);
+  }
+  .pill b { color: var(--siren); }
+  .btn {
+    font: 800 1rem "Baloo 2", system-ui, sans-serif;
+    background: var(--sun); color: var(--ink); border: 0; border-radius: 999px;
+    padding: 8px 18px; cursor: pointer; box-shadow: 0 4px 0 var(--sun-deep);
+    transition: transform .1s; display: inline-flex; align-items: center; gap: 6px;
+  }
+  .btn:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--sun-deep); }
+  .btn.blue { background: #fff; box-shadow: 0 4px 0 var(--sky-deep); }
+  .btn.ghost { background: var(--panel-soft); box-shadow: none; font-size: .9rem; }
+  .btn:focus-visible, .card:focus-visible, .chip:focus-visible, .thumb button:focus-visible { outline: 4px solid var(--sun); outline-offset: 3px; }
+
+  /* Painel de personalização */
+  .panel {
+    background: var(--panel); border-radius: 20px; padding: 16px 18px;
+    box-shadow: 0 5px 0 var(--sky-deep); display: grid; gap: 16px;
+  }
+  .panel h2 { font: 800 1.25rem "Baloo 2", system-ui, sans-serif; margin: 0; }
+  .row { display: grid; gap: 8px; }
+  .row-label { font-weight: 800; font-size: .95rem; }
+  .hint { color: var(--muted); font-size: .88rem; margin: 0; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    font: 800 1.05rem "Baloo 2", system-ui, sans-serif; min-width: 58px;
+    border: 3px solid var(--panel-soft); background: var(--panel-soft); color: var(--ink);
+    border-radius: 14px; padding: 6px 10px; cursor: pointer; line-height: 1.1;
+  }
+  .chip small { display: block; font: 700 .7rem "Nunito", system-ui, sans-serif; color: var(--muted); }
+  .chip[aria-pressed="true"] { background: var(--sun); border-color: var(--sun-deep); }
+  .chip[aria-pressed="true"] small { color: var(--ink); }
+  .photo-tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .photo-tools input[type=file] { position: absolute; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+  .drop {
+    border: 3px dashed #BFD6F6; border-radius: 16px; padding: 12px; background: var(--panel-soft);
+    display: grid; gap: 10px;
+  }
+  .drop.over { border-color: var(--sky); background: #DDEBFF; }
+  .thumbs { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 8px; }
+  .thumb { position: relative; aspect-ratio: 1; border-radius: 12px; overflow: hidden; background: #fff; box-shadow: 0 2px 0 #BFD6F6; }
+  .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .thumb button {
+    position: absolute; top: 3px; right: 3px; width: 24px; height: 24px; border-radius: 50%;
+    border: 0; background: var(--siren); color: #fff; font-weight: 800; cursor: pointer; line-height: 1; padding: 0;
+  }
+  .status { font-weight: 700; font-size: .9rem; margin: 0; }
+  .status b { color: var(--siren); }
+
+  /* Tabuleiro */
+  .board { display: grid; grid-template-columns: repeat(var(--cols), 1fr); gap: 10px; }
+  .board.dense { gap: 7px; }
+  .card { position: relative; aspect-ratio: 3 / 4; max-width: 100%; border: 0; padding: 0; background: none; cursor: pointer; perspective: 700px; }
+  .inner { position: absolute; inset: 0; transform-style: preserve-3d; transition: transform .45s cubic-bezier(.3,1.4,.5,1); }
+  .card.up .inner, .card.done .inner { transform: rotateY(180deg); }
+  .side { position: absolute; inset: 0; border-radius: 12px; backface-visibility: hidden; -webkit-backface-visibility: hidden; display: grid; place-items: center; overflow: hidden; }
+  .back {
+    background: var(--siren);
+    background-image: repeating-linear-gradient(45deg, rgba(255,255,255,.08) 0 8px, transparent 8px 16px);
+    box-shadow: inset 0 0 0 4px #fff, 0 4px 0 #A92A1B;
+  }
+  .back svg { width: 52%; height: auto; }
+  .back { background-color: var(--back, #E8412C); }
+  .back .logo-badge {
+    width: 78%; aspect-ratio: 1; background: #fff; border-radius: 16%;
+    display: grid; place-items: center; padding: 8%; box-sizing: border-box;
+    box-shadow: 0 2px 0 rgba(0,0,0,.18);
+  }
+  .back .logo-badge img { max-width: 100%; max-height: 100%; object-fit: contain; display: block; }
+  .back.cover { background-image: none; padding: 0; }
+  .back.cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .back.cover::after { content: ""; position: absolute; inset: 0; border-radius: 12px; box-shadow: inset 0 0 0 4px #fff; }
+
+  /* Faixa do patrocinador */
+  .sponsor-bar {
+    background: #fff; border-radius: 16px; padding: 8px 14px; box-shadow: 0 4px 0 var(--sky-deep);
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+  }
+  .sponsor-bar .tag { font: 800 .72rem "Nunito", system-ui, sans-serif; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .sponsor-bar img { height: 44px; max-width: 160px; object-fit: contain; }
+  .sponsor-bar .sp-name { font: 800 1.15rem "Baloo 2", system-ui, sans-serif; line-height: 1.1; }
+  .sponsor-bar .sp-info { font-size: .9rem; color: var(--muted); }
+  .win .sp-win { display: grid; justify-items: center; gap: 6px; margin: -6px 0 16px; }
+  .win .sp-win img { max-height: 70px; max-width: 200px; object-fit: contain; }
+  .win .sp-win span { font-size: .85rem; color: var(--muted); }
+
+  /* Campos do patrocinador */
+  .fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
+  .field { display: grid; gap: 4px; }
+  .field label { font-weight: 800; font-size: .88rem; }
+  .auth-title { font: 800 1.05rem "Baloo 2", system-ui, sans-serif; margin: 0; }
+  .status.err { color: var(--siren); }
+  .admin-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-weight: 700; }
+  .admin-bar span { margin-right: auto; }
+  .field input[type=text], .field input[type=password] {
+    font: 700 1rem "Nunito", system-ui, sans-serif; color: var(--ink);
+    border: 2px solid #BFD6F6; border-radius: 10px; padding: 8px 10px; background: #fff; min-width: 0;
+  }
+  .field input[type=color] { width: 60px; height: 40px; border: 2px solid #BFD6F6; border-radius: 10px; padding: 2px; background: #fff; }
+  .sp-preview { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .sp-preview .mini { width: 72px; aspect-ratio: 3/4; position: relative; }
+  .sp-preview .mini .side { border-radius: 10px; }
+  .sp-logo-box { width: 90px; height: 64px; border-radius: 10px; background: #fff; box-shadow: 0 2px 0 #BFD6F6; display: grid; place-items: center; overflow: hidden; }
+  .sp-logo-box img { max-width: 90%; max-height: 90%; object-fit: contain; }
+  .sp-logo-box span { font-size: .75rem; color: var(--muted); text-align: center; padding: 4px; }
+  .front {
+    background: #fff; transform: rotateY(180deg);
+    box-shadow: inset 0 0 0 4px var(--sun), 0 4px 0 var(--sun-deep);
+    grid-template-rows: 1fr auto; padding: 6px 4px 5px; box-sizing: border-box;
+  }
+  .front svg { width: 88%; height: auto; align-self: center; justify-self: center; }
+  .front .emo { font-size: calc(clamp(1.5rem, 5vw, 2.8rem) * var(--emo-scale, 1)); line-height: 1; align-self: center; }
+  .front .lbl { font: 800 clamp(.58rem, 1.5vw, .85rem) "Baloo 2", system-ui, sans-serif; color: var(--ink); line-height: 1; text-align: center; }
+  .front.photo { padding: 0; grid-template-rows: 1fr; }
+  .front.photo img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .front.photo::after { content: ""; position: absolute; inset: 0; border-radius: 12px; box-shadow: inset 0 0 0 4px var(--sun); }
+  .card.done .front { box-shadow: inset 0 0 0 4px var(--grass), 0 4px 0 #2A8A4F; animation: pop .5s; }
+  .card.done .front.photo::after { box-shadow: inset 0 0 0 4px var(--grass); }
+  .card.miss .front { animation: shake .4s; }
+  @keyframes pop { 50% { transform: rotateY(180deg) scale(1.1); } }
+  @keyframes shake { 25% { transform: rotateY(180deg) translateX(-4px);} 75% { transform: rotateY(180deg) translateX(4px);} }
+
+  .win { position: fixed; inset: 0; display: grid; place-items: center; padding: 16px; background: rgba(19,41,75,.55); z-index: 5; }
+  .win .box { background: #fff; border-radius: 24px; padding: 26px 28px; text-align: center; max-width: 380px; box-shadow: 0 8px 0 var(--sky-deep); }
+  .win h2 { font: 800 2.2rem "Baloo 2", system-ui, sans-serif; margin: 0; color: var(--siren); }
+  .win p { margin: 8px 0 18px; font-size: 1.05rem; }
+  canvas#confetti { position: fixed; inset: 0; pointer-events: none; z-index: 6; }
+  footer { color: #DCEBFF; font-size: .8rem; text-align: center; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .inner { transition: none; }
+    .card.done .front, .card.miss .front { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div>
+      <h1>Memória dos <span>Filhotes Resgatadores</span></h1>
+      <p class="sub">Vire duas cartas e encontre os pares.</p>
+    </div>
+    <div class="hud">
+      <div class="pill">Pares: <b id="pairs">0</b>/<span id="total">20</span></div>
+      <div class="pill">Jogadas: <b id="moves">0</b></div>
+      <div class="pill">⏱ <b id="time">0:00</b></div>
+      <button class="btn blue" id="toggleCfg" type="button" aria-expanded="false" aria-controls="cfg">⚙️ Personalizar</button>
+      <button class="btn" id="restart" type="button">Novo jogo</button>
+    </div>
+  </header>
+
+  <div class="sponsor-bar" id="sponsorBar" hidden>
+    <span class="tag">Oferecimento</span>
+    <img id="spBarLogo" alt="" hidden>
+    <div>
+      <div class="sp-name" id="spBarName"></div>
+      <div class="sp-info" id="spBarInfo"></div>
+    </div>
+  </div>
+
+  <section class="panel" id="cfg" hidden aria-label="Personalizar o jogo">
+    <div class="row">
+      <h2>Quantas peças?</h2>
+      <div class="chips" id="sizes" role="group" aria-label="Quantidade de peças"></div>
+    </div>
+    <div class="row">
+      <h2>Suas fotos</h2>
+      <p class="hint">Escolha fotos da família, dos bichinhos ou do que quiser. Cada foto vira um par de cartas. Se faltar foto, o jogo completa com as figuras dos filhotes. As fotos ficam guardadas só neste navegador.</p>
+      <div class="drop" id="drop">
+        <div class="photo-tools">
+          <label class="btn" for="fileInput">📷 Adicionar fotos</label>
+          <input type="file" id="fileInput" accept="image/*" multiple>
+          <button class="btn ghost" type="button" id="clearPhotos">Remover todas</button>
+          <span class="hint">ou arraste as fotos para cá</span>
+        </div>
+        <div class="thumbs" id="thumbs"></div>
+        <p class="status" id="photoStatus"></p>
+      </div>
+    </div>
+    <div><button class="btn" type="button" id="applyCfg">Começar com estas opções</button></div>
+  </section>
+
+  <main class="board" id="board" aria-label="Tabuleiro"></main>
+  <footer>Personagens originais para brincar em família.</footer>
+</div>
+
+<div class="win" id="win" hidden>
+  <div class="box" role="dialog" aria-labelledby="winTitle">
+    <h2 id="winTitle">Missão cumprida!</h2>
+    <p id="winText"></p>
+    <div class="sp-win" id="spWin" hidden><span>Oferecimento</span><img id="spWinLogo" alt="" hidden><b id="spWinName"></b></div>
+    <button class="btn" id="again" type="button">Jogar de novo</button>
+  </div>
+</div>
+<canvas id="confetti" hidden></canvas>
+
+<script>
+(function(){
+  const EMBEDDED_SPONSOR = null; // @@SPONSOR@@
+  const NO_TRACK = false; // @@NOTRACK@@
+  const SIZES = [10, 20, 40, 60, 80, 100];
+  const MAX_PHOTOS = 50;
+  const STORE_PHOTOS = "memoria-fotos-v1", STORE_SIZE = "memoria-tamanho-v1";
+
+  const PUPS = [
+    { name:"Faísca",  fur:"#E0A15A", ear:"#9A5A22", helm:"#E8412C", badge:"🔥", ears:"flop" },
+    { name:"Trovão",  fur:"#5B5F6B", ear:"#2F323A", helm:"#FFC93C", badge:"⚡", ears:"up" },
+    { name:"Bolota",  fur:"#F4E3C8", ear:"#C9A477", helm:"#3DB36B", badge:"🌿", ears:"flop" },
+    { name:"Pipoca",  fur:"#FFFFFF", ear:"#E0C9A6", helm:"#F27BB5", badge:"💖", ears:"up" },
+    { name:"Canela",  fur:"#A5582C", ear:"#6B3414", helm:"#2B7DE9", badge:"💧", ears:"flop" },
+    { name:"Nuvem",   fur:"#DDE6F0", ear:"#9FB0C4", helm:"#7A5CE0", badge:"🪽", ears:"up" },
+    { name:"Tico",    fur:"#2D2A2A", ear:"#141212", helm:"#FF8A1F", badge:"🔧", ears:"up" },
+    { name:"Mel",     fur:"#F5C04A", ear:"#C98B14", helm:"#18A7A0", badge:"🌊", ears:"flop" },
+    { name:"Lua",     fur:"#B9B4C8", ear:"#7D7792", helm:"#1C2E6B", badge:"🌙", ears:"flop" },
+    { name:"Rocky",   fur:"#8C6B4F", ear:"#553E2A", helm:"#6E8B2E", badge:"⛰️", ears:"up" },
+  ];
+  const RESCUE = [
+    ["🚒","Caminhão"],["🚓","Viatura"],["🚁","Helicóptero"],["🚤","Lancha"],["🚜","Trator"],
+    ["🦴","Ossinho"],["⛑️","Capacete"],["🏠","Base"],["🧯","Extintor"],["⭐","Estrela"],
+  ];
+  const EXTRAS = [
+    ["🐱","Gato"],["🐰","Coelho"],["🐻","Urso"],["🐼","Panda"],["🦁","Leão"],["🐸","Sapo"],
+    ["🐵","Macaco"],["🐷","Porquinho"],["🐮","Vaquinha"],["🐔","Galinha"],["🦆","Pato"],["🐢","Tartaruga"],
+    ["🐠","Peixe"],["🦋","Borboleta"],["🐞","Joaninha"],["🍎","Maçã"],["🍌","Banana"],["🍓","Morango"],
+    ["🍉","Melancia"],["🍇","Uva"],["⚽","Bola"],["🎈","Balão"],["🚲","Bicicleta"],["✈️","Avião"],
+    ["🚂","Trem"],["🌈","Arco-íris"],["☀️","Sol"],["🌻","Girassol"],["🎁","Presente"],["🍦","Sorvete"],
+  ];
+
+  function pupSVG(p){
+    const ears = p.ears === "flop"
+      ? `<ellipse cx="22" cy="58" rx="13" ry="24" fill="${p.ear}" transform="rotate(18 22 58)"/>
+         <ellipse cx="98" cy="58" rx="13" ry="24" fill="${p.ear}" transform="rotate(-18 98 58)"/>`
+      : `<path d="M20 50 L28 12 L50 38 Z" fill="${p.ear}"/><path d="M100 50 L92 12 L70 38 Z" fill="${p.ear}"/>`;
+    const outline = p.fur === "#FFFFFF" ? ' stroke="#D9CBB3" stroke-width="2"' : '';
+    return `<svg viewBox="0 0 120 120" aria-hidden="true">${ears}
+      <circle cx="60" cy="66" r="38" fill="${p.fur}"${outline}/>
+      <path d="M24 50 Q60 6 96 50 L96 54 Q60 42 24 54 Z" fill="${p.helm}"/>
+      <rect x="20" y="50" width="80" height="8" rx="4" fill="${p.helm}"/>
+      <circle cx="60" cy="36" r="11" fill="#fff"/>
+      <text x="60" y="41" font-size="13" text-anchor="middle">${p.badge}</text>
+      <ellipse cx="60" cy="84" rx="20" ry="15" fill="#FFF5E6" opacity=".9"/>
+      <circle cx="46" cy="68" r="5.5" fill="#1B1B22"/><circle cx="74" cy="68" r="5.5" fill="#1B1B22"/>
+      <circle cx="47.8" cy="66.2" r="1.8" fill="#fff"/><circle cx="75.8" cy="66.2" r="1.8" fill="#fff"/>
+      <ellipse cx="60" cy="79" rx="6.5" ry="4.5" fill="#1B1B22"/>
+      <path d="M52 88 Q60 95 68 88" stroke="#1B1B22" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <path d="M57 91 Q60 100 63 91 Z" fill="#F27B8A"/>
+      <circle cx="38" cy="82" r="4" fill="#F7A3A3" opacity=".6"/><circle cx="82" cy="82" r="4" fill="#F7A3A3" opacity=".6"/>
+    </svg>`;
+  }
+  const PAW = `<svg viewBox="0 0 64 64" aria-hidden="true"><g fill="#fff">
+    <ellipse cx="32" cy="42" rx="14" ry="12"/><ellipse cx="14" cy="26" rx="6" ry="8"/>
+    <ellipse cx="25" cy="15" rx="6" ry="8"/><ellipse cx="39" cy="15" rx="6" ry="8"/><ellipse cx="50" cy="26" rx="6" ry="8"/></g></svg>`;
+
+  const THEMED = [
+    ...PUPS.map((p,i)=>({ id:"p"+i, name:p.name, kind:"svg", html: pupSVG(p) })),
+    ...RESCUE.map(([e,n],i)=>({ id:"r"+i, name:n, kind:"emo", emo:e })),
+  ];
+  const EXTRA = EXTRAS.map(([e,n],i)=>({ id:"x"+i, name:n, kind:"emo", emo:e }));
+
+  // ---------- armazenamento local (opcional) ----------
+  function load(key, fallback){ try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch(e){ return fallback; } }
+  function save(key, val){ try { localStorage.setItem(key, JSON.stringify(val)); return true; } catch(e){ return false; } }
+
+  let size = SIZES.includes(load(STORE_SIZE, 40)) ? load(STORE_SIZE, 40) : 40;
+  let photos = load(STORE_PHOTOS, []);
+  if (!Array.isArray(photos)) photos = [];
+  let savedOK = true;
+
+  // ---------- patrocinador ----------
+  const DEFAULT_SP = { logo:null, name:"", info:"", style:"badge", color:"#e8412c" };
+  const sponsor = Object.assign({}, DEFAULT_SP, EMBEDDED_SPONSOR || {});
+  let logoURL = null;
+  function refreshLogoURL(){
+    if (logoURL) URL.revokeObjectURL(logoURL);
+    logoURL = null;
+    if (!sponsor.logo) return;
+    try {
+      const [head, b64] = sponsor.logo.split(",");
+      const mime = head.match(/data:(.*?);/)[1];
+      const bin = atob(b64), arr = new Uint8Array(bin.length);
+      for (let i=0;i<bin.length;i++) arr[i] = bin.charCodeAt(i);
+      logoURL = URL.createObjectURL(new Blob([arr], { type: mime }));
+    } catch(e) { logoURL = sponsor.logo; }
+  }
+  function hasSponsor(){ return !!(sponsor.logo || sponsor.name.trim()); }
+  function backHTML(){
+    if (sponsor.logo && sponsor.style === "cover") return `<div class="side back cover"><img src="${logoURL}" alt=""></div>`;
+    if (sponsor.logo && sponsor.style === "badge") return `<div class="side back"><div class="logo-badge"><img src="${logoURL}" alt=""></div></div>`;
+    return `<div class="side back">${PAW}</div>`;
+  }
+
+  // ---------- elementos ----------
+  const $ = id => document.getElementById(id);
+  const board = $("board"), cfg = $("cfg");
+  let open = [], lock = false, pairs = 0, moves = 0, seconds = 0, timer = null, need = 20;
+
+  function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+  function fmt(s){ return Math.floor(s/60)+":"+String(s%60).padStart(2,"0"); }
+
+  function columns(n){
+    const narrow = window.innerWidth < 720;
+    if (narrow) return n <= 10 ? 5 : n <= 20 ? 4 : n <= 40 ? 5 : 6;
+    return n <= 10 ? 5 : n <= 20 ? 5 : n <= 40 ? 8 : 10;
+  }
+
+  function buildDeck(){
+    need = size / 2;
+    const fromPhotos = shuffle(photos.slice()).slice(0, need).map((src,i)=>({ id:"f"+i, kind:"photo", src, name:"Foto" }));
+    const missing = need - fromPhotos.length;
+    const fill = shuffle(THEMED.slice()).concat(shuffle(EXTRA.slice())).slice(0, missing);
+    return fromPhotos.concat(fill);
+  }
+
+  function faceHTML(c){
+    if (c.kind === "photo") return `<div class="side front photo"><img src="${c.src}" alt=""></div>`;
+    const art = c.kind === "svg" ? c.html : `<span class="emo" aria-hidden="true">${c.emo}</span>`;
+    return `<div class="side front">${art}<div class="lbl">${c.name}</div></div>`;
+  }
+
+  function start(){
+    clearInterval(timer); timer = null;
+    open = []; lock = false; pairs = 0; moves = 0; seconds = 0;
+    const set = buildDeck();
+    $("pairs").textContent = 0; $("moves").textContent = 0; $("time").textContent = "0:00";
+    $("total").textContent = need;
+    $("win").hidden = true; $("confetti").hidden = true;
+    document.documentElement.style.setProperty("--cols", columns(size));
+    document.documentElement.style.setProperty("--emo-scale", size >= 60 ? .8 : 1);
+    board.classList.toggle("dense", size >= 60 || window.innerWidth < 720);
+    board.setAttribute("aria-label", `Tabuleiro com ${size} cartas`);
+    board.innerHTML = "";
+    shuffle([...set, ...set]).forEach((c, idx) => {
+      const b = document.createElement("button");
+      b.className = "card"; b.type = "button"; b.dataset.id = c.id;
+      b.setAttribute("aria-label", "Carta " + (idx+1) + " virada para baixo");
+      b.innerHTML = `<div class="inner">${backHTML()}${faceHTML(c)}</div>`;
+      b.addEventListener("click", () => flip(b, c));
+      board.appendChild(b);
+    });
+  }
+
+  function flip(b, c){
+    if (lock || b.classList.contains("up") || b.classList.contains("done")) return;
+    if (!timer) timer = setInterval(() => { seconds++; $("time").textContent = fmt(seconds); }, 1000);
+    b.classList.add("up"); b.setAttribute("aria-label", c.name);
+    open.push(b);
+    if (open.length < 2) return;
+    moves++; $("moves").textContent = moves;
+    const [a, d] = open;
+    if (a.dataset.id === d.dataset.id){
+      a.classList.add("done"); d.classList.add("done");
+      a.classList.remove("up"); d.classList.remove("up");
+      open = []; pairs++; $("pairs").textContent = pairs;
+      if (pairs === need) finish();
+    } else {
+      lock = true;
+      a.classList.add("miss"); d.classList.add("miss");
+      setTimeout(() => {
+        [a,d].forEach(x => { x.classList.remove("up","miss"); x.setAttribute("aria-label","Carta virada para baixo"); });
+        open = []; lock = false;
+      }, 900);
+    }
+  }
+
+  function finish(){
+    clearInterval(timer);
+    const stars = moves <= need * 1.4 ? "⭐⭐⭐" : moves <= need * 2 ? "⭐⭐" : "⭐";
+    $("winText").textContent = `Você achou os ${need} pares em ${moves} jogadas e ${fmt(seconds)}! ${stars}`;
+    setTimeout(() => { $("win").hidden = false; confetti(); }, 500);
+  }
+
+  function confetti(){
+    if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const cv = $("confetti"), ctx = cv.getContext("2d");
+    cv.hidden = false; cv.width = innerWidth; cv.height = innerHeight;
+    const cols = ["#E8412C","#FFC93C","#3DB36B","#2B7DE9","#F27BB5","#fff"];
+    const bits = Array.from({length:140}, () => ({
+      x: Math.random()*cv.width, y: -20 - Math.random()*cv.height*0.5,
+      vx: (Math.random()-.5)*3, vy: 2+Math.random()*3, r: 4+Math.random()*5,
+      a: Math.random()*6, va: (Math.random()-.5)*.3, c: cols[Math.floor(Math.random()*cols.length)]
+    }));
+    let t = 0;
+    (function frame(){
+      ctx.clearRect(0,0,cv.width,cv.height);
+      bits.forEach(p => { p.x+=p.vx; p.y+=p.vy; p.a+=p.va;
+        ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.a); ctx.fillStyle=p.c; ctx.fillRect(-p.r,-p.r/2,p.r*2,p.r); ctx.restore(); });
+      if (++t < 260 && !cv.hidden) requestAnimationFrame(frame); else { cv.hidden = true; }
+    })();
+  }
+
+  // ---------- painel de personalização ----------
+  function renderSizes(){
+    $("sizes").innerHTML = SIZES.map(n =>
+      `<button type="button" class="chip" data-n="${n}" aria-pressed="${n===size}">${n}<small>${n/2} pares</small></button>`).join("");
+  }
+  $("sizes").addEventListener("click", e => {
+    const b = e.target.closest(".chip"); if (!b) return;
+    size = Number(b.dataset.n); save(STORE_SIZE, size); renderSizes(); renderStatus();
+  });
+
+  function renderThumbs(){
+    $("thumbs").innerHTML = photos.map((src,i) =>
+      `<div class="thumb"><img src="${src}" alt="Foto ${i+1}"><button type="button" data-i="${i}" aria-label="Remover foto ${i+1}">✕</button></div>`).join("");
+    renderStatus();
+  }
+  function renderStatus(){
+    const n = size/2, p = photos.length;
+    let msg;
+    if (!p) msg = `Nenhuma foto ainda. O jogo de ${size} peças usa ${n} figuras dos filhotes.`;
+    else if (p >= n) msg = `Você tem <b>${p}</b> foto${p>1?"s":""}. O jogo de ${size} peças vai usar ${n} delas.`;
+    else msg = `Você tem <b>${p}</b> foto${p>1?"s":""}. O jogo de ${size} peças precisa de ${n}: as outras ${n-p} serão figuras dos filhotes.`;
+    if (!savedOK) msg += ` <br>As fotos não couberam na memória do navegador e vão sumir se a página for fechada.`;
+    $("photoStatus").innerHTML = msg;
+  }
+  $("thumbs").addEventListener("click", e => {
+    const b = e.target.closest("button[data-i]"); if (!b) return;
+    photos.splice(Number(b.dataset.i), 1); savedOK = save(STORE_PHOTOS, photos); renderThumbs();
+  });
+  $("clearPhotos").addEventListener("click", () => { photos = []; savedOK = save(STORE_PHOTOS, photos); renderThumbs(); });
+
+  function shrink(file){
+    return new Promise(resolve => {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        const S = 320, side = Math.min(img.width, img.height);
+        const cv = document.createElement("canvas"); cv.width = S; cv.height = S;
+        cv.getContext("2d").drawImage(img, (img.width-side)/2, (img.height-side)/2, side, side, 0, 0, S, S);
+        URL.revokeObjectURL(url);
+        resolve(cv.toDataURL("image/jpeg", 0.78));
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); resolve(null); };
+      img.src = url;
+    });
+  }
+  async function addFiles(list){
+    const files = [...list].filter(f => f.type.startsWith("image/"));
+    if (!files.length) return;
+    $("photoStatus").textContent = "Preparando fotos…";
+    for (const f of files){
+      if (photos.length >= MAX_PHOTOS) break;
+      const d = await shrink(f); if (d) photos.push(d);
+    }
+    savedOK = save(STORE_PHOTOS, photos);
+    renderThumbs();
+    if (photos.length >= MAX_PHOTOS) $("photoStatus").innerHTML += ` Limite de ${MAX_PHOTOS} fotos atingido.`;
+  }
+  $("fileInput").addEventListener("change", e => { addFiles(e.target.files); e.target.value = ""; });
+  const drop = $("drop");
+  ["dragenter","dragover"].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.add("over"); }));
+  ["dragleave","drop"].forEach(t => drop.addEventListener(t, e => { e.preventDefault(); drop.classList.remove("over"); }));
+  drop.addEventListener("drop", e => addFiles(e.dataTransfer.files));
+
+  function showCfg(show){ cfg.hidden = !show; $("toggleCfg").setAttribute("aria-expanded", String(show)); }
+  $("toggleCfg").addEventListener("click", () => showCfg(cfg.hidden));
+  $("applyCfg").addEventListener("click", () => { showCfg(false); start(); window.scrollTo({ top: 0, behavior: "smooth" }); });
+  $("restart").addEventListener("click", start);
+  $("again").addEventListener("click", start);
+  let lastNarrow = window.innerWidth < 720;
+  window.addEventListener("resize", () => {
+    const n = window.innerWidth < 720;
+    if (n !== lastNarrow){ lastNarrow = n; document.documentElement.style.setProperty("--cols", columns(size)); board.classList.toggle("dense", size >= 60 || n); }
+  });
+
+  // ---------- patrocinador (definido pelo painel do administrador) ----------
+  function renderSponsor(){
+    document.documentElement.style.setProperty("--back", sponsor.color || "#e8412c");
+    const on = hasSponsor();
+    $("sponsorBar").hidden = !on;
+    $("spBarLogo").hidden = !sponsor.logo; if (sponsor.logo) $("spBarLogo").src = logoURL;
+    $("spBarName").textContent = sponsor.name; $("spBarInfo").textContent = sponsor.info;
+    $("spBarInfo").hidden = !sponsor.info;
+    $("spWin").hidden = !on;
+    $("spWinLogo").hidden = !sponsor.logo; if (sponsor.logo) $("spWinLogo").src = logoURL;
+    $("spWinName").textContent = sponsor.name;
+  }
+
+  // ---------- contador de acessos (anônimo: só conta aberturas e quem está online) ----------
+  (function track(){
+    if (NO_TRACK) return;
+    const API = "https://pjzelajhjcfpxzydcccd.supabase.co/rest/v1/rpc/";
+    const KEY = "sb_publishable_MfFN8fR9vY7fuIJaVodo8w_IlNQ_xT9";
+    const rid = () => (window.crypto && crypto.randomUUID) ? crypto.randomUUID()
+      : "xxxxxxxx-xxxx-4xxx-8xxx-xxxxxxxxxxxx".replace(/x/g, () => (Math.random()*16|0).toString(16));
+    let aparelho = load("memoria-aparelho", null);
+    if (!aparelho) { aparelho = rid(); save("memoria-aparelho", aparelho); }
+    const sessao = rid();
+    const call = (fn, body) => fetch(API + fn, {
+      method: "POST", headers: { "apikey": KEY, "Content-Type": "application/json" }, body: JSON.stringify(body), keepalive: true
+    }).catch(() => {});
+    call("registrar_acesso", { p_sessao: sessao, p_aparelho: aparelho, p_patrocinador: (sponsor.name || "").trim() || null,
+                               p_origem: location.protocol === "file:" ? "arquivo" : "link" });
+    const ping = () => { if (document.visibilityState === "visible") call("sinal_online", { p_sessao: sessao }); };
+    setInterval(ping, 30000);
+    document.addEventListener("visibilitychange", ping);
+  })();
+
+  refreshLogoURL();
+  renderSizes(); renderThumbs(); start(); renderSponsor();
+})();
+</script>
+</body>
+</html>
